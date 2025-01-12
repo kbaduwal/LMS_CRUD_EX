@@ -2,6 +2,7 @@ package com.example.lms.service;
 
 import com.example.lms.dto.UserDTO;
 import com.example.lms.entity.User;
+import com.example.lms.exception.ResourceNotFoundException;
 import com.example.lms.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserDTO getUserById(Long id) {
         User user = userRepository.findById(id).orElseThrow(()->
-                new RuntimeException("User not found with id: "+id));
+                new ResourceNotFoundException("User", "id", id));
 
         return new UserDTO(
                 user.getId(),
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService{
             );
 
         }else {
-            throw new RuntimeException("User not found with id: "+id);
+            throw new ResourceNotFoundException("User","id",id);
         }
 
     }
@@ -95,7 +96,7 @@ public class UserServiceImpl implements UserService{
         if(userId.isPresent()){
             userRepository.delete(userId.get());
         }else {
-            throw new RuntimeException("User not found with id: "+id);
+            throw new ResourceNotFoundException("User","id",id);
         }
 
     }
