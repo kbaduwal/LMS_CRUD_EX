@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public boolean existsByName(String name) {
-        return userRepository.existsByName(name);
+        return userRepository.existsByUsername(name);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService{
 
         // Manually map the fields from userDTO to newUser
         User newUser = new User();
-        newUser.setName(userDTO.getName());
+        newUser.setUsername(userDTO.getName());
         newUser.setEmail(userDTO.getEmail());
         newUser.setPassword(userDTO.getPassword());
         newUser.setRole(userDTO.getRole());
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService{
         return userList.stream()
                 .map(user -> new UserDTO(
                         user.getId(),
-                        user.getName(),
+                        user.getUsername(),
                         user.getEmail(),
                         user.getPassword(),
                         user.getRole()
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService{
 
         return new UserDTO(
                 user.getId(),
-                user.getName(),
+                user.getUsername(),
                 user.getEmail(),
                 user.getPassword(),
                 user.getRole()
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService{
 
             return new UserDTO(
                     updatedUser.getId(),
-                    updatedUser.getName(),
+                    updatedUser.getUsername(),
                     updatedUser.getEmail(),
                     updatedUser.getPassword(),
                     updatedUser.getRole()
