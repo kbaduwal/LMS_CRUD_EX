@@ -1,4 +1,5 @@
 package com.example.lms.dto;
+//Setting up a role factory to create role instances.
 
 
 import jakarta.validation.constraints.Email;
@@ -33,7 +34,6 @@ public class SignUpRequestDto {
 
     private Set<String> roles;
 
-    @Autowired
     public SignUpRequestDto(String userName, String email, String password) {
         this.userName = userName;
         this.email = email;
