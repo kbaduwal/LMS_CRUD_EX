@@ -1,8 +1,11 @@
 package com.example.lms.service;
 
 import com.example.lms.dto.UserDTO;
+import com.example.lms.entity.Role;
 import com.example.lms.entity.User;
+import com.example.lms.enums.UserRole;
 import com.example.lms.exception.ResourceNotFoundException;
+import com.example.lms.exception.RoleNotFoundException;
 import com.example.lms.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -18,8 +22,8 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
 
     @Override
-    public boolean existsByName(String name) {
-        return userRepository.existsByUsername(name);
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
     }
 
     @Override
@@ -28,26 +32,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public boolean createUser(UserDTO userDTO) {
-        Optional<User> user = userRepository.findByEmail(userDTO.getEmail());
-        if (user.isPresent()) { //user != null
-            return false;
-        }
-
-        // Manually map the fields from userDTO to newUser
-        User newUser = new User();
-        newUser.setUsername(userDTO.getName());
-        newUser.setEmail(userDTO.getEmail());
-        newUser.setPassword(userDTO.getPassword());
-        newUser.setRole(userDTO.getRole());
-
-        // Save the new user to the database
-        userRepository.save(newUser);
-        return true;
-    }
-
-    @Override
-    public List<UserDTO> getAllUsers() {
+    public List<UserDTO> getAllUsers() throws RoleNotFoundException{
         List<User> userList = userRepository.findAll();
 
         return userList.stream()
@@ -56,8 +41,11 @@ public class UserServiceImpl implements UserService{
                         user.getUsername(),
                         user.getEmail(),
                         user.getPassword(),
-                        user.getRole()
-                )).toList();
+                        user.getRoles().stream()
+                                .map(Role::getName) // Assuming Role::getName maps to UserRole or similar
+                                .findFirst()
+                                .orElseThrow(() -> new RuntimeException("No role found for the user"))
+                        )).collect(Collectors.toList());
     }
 
     @Override
@@ -70,7 +58,10 @@ public class UserServiceImpl implements UserService{
                 user.getUsername(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getRole()
+                user.getRoles().stream()
+                        .map(Role::getName) // Assuming Role::getName maps to UserRole or similar
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("No role found for the user"))
         );
     }
 
@@ -90,7 +81,10 @@ public class UserServiceImpl implements UserService{
                     updatedUser.getUsername(),
                     updatedUser.getEmail(),
                     updatedUser.getPassword(),
-                    updatedUser.getRole()
+                    updatedUser.getRoles().stream()
+                            .map(Role::getName) // Assuming Role::getName maps to UserRole or similar
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("No role found for the user"))
             );
 
         }else {
@@ -109,5 +103,10 @@ public class UserServiceImpl implements UserService{
             throw new ResourceNotFoundException("User","id",id);
         }
 
+    }
+
+    @Override
+    public void save(User user) {
+        userRepository.save(user);
     }
 }

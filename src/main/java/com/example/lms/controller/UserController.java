@@ -1,8 +1,14 @@
 package com.example.lms.controller;
 
+import com.example.lms.dto.ApiResponseDto;
+import com.example.lms.dto.SignUpRequestDto;
 import com.example.lms.dto.UserDTO;
 import com.example.lms.exception.ResourceNotFoundException;
+import com.example.lms.exception.RoleNotFoundException;
+import com.example.lms.exception.UserAlreadyExistsException;
+import com.example.lms.service.AuthService;
 import com.example.lms.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,25 +17,25 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody UserDTO createUserDTO) {
-        boolean isCreated = userService.createUser(createUserDTO);
+    @Autowired
+    private AuthService authService;
 
-        if (isCreated) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully");
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
-        }
+    @PostMapping("/signup")
+    public ResponseEntity<ApiResponseDto<?>> registerUser(@RequestBody @Valid SignUpRequestDto signUpRequestDto)
+            throws RoleNotFoundException, UserAlreadyExistsException {
+
+        return authService.signUpUser(signUpRequestDto);
+
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    public ResponseEntity<List<UserDTO>> getAllUsers() throws RoleNotFoundException {
         List<UserDTO> usersList = userService.getAllUsers();
         return ResponseEntity.ok(usersList);
     }

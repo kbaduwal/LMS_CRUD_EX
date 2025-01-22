@@ -2,6 +2,7 @@ package com.example.lms.controller;
 
 import com.example.lms.dto.BorrowDTO;
 import com.example.lms.exception.ResourceNotFoundException;
+import com.example.lms.exception.RoleNotFoundException;
 import com.example.lms.service.BorrowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,8 +23,9 @@ public class BorrowController {
             BorrowDTO borrow = borrowService.borrowBook(userId, bookId);
             return ResponseEntity.
                     status(HttpStatus.CREATED).body(borrow);
-        }catch (ResourceNotFoundException e){
-            throw e;
+        }catch (RoleNotFoundException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(null);
         }
     }
 

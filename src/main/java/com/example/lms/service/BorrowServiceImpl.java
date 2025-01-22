@@ -7,6 +7,7 @@ import com.example.lms.entity.User;
 import com.example.lms.enums.UserRole;
 import com.example.lms.exception.BadRequestException;
 import com.example.lms.exception.ResourceNotFoundException;
+import com.example.lms.exception.RoleNotFoundException;
 import com.example.lms.repository.BookRepository;
 import com.example.lms.repository.BorrowRepository;
 import com.example.lms.repository.UserRepository;
@@ -28,7 +29,7 @@ public class BorrowServiceImpl implements BorrowService{
     private BorrowRepository borrowRepository;
 
     @Override
-    public BorrowDTO borrowBook(Long userId, Long bookId) {
+    public BorrowDTO borrowBook(Long userId, Long bookId) throws RoleNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(
                 ()->new ResourceNotFoundException("User", "userId", userId));
 
@@ -40,7 +41,10 @@ public class BorrowServiceImpl implements BorrowService{
         }
 
         //Checking user's borrowing limits based on their roles
-        int allowedBooks = getAllowedBooks(user.getRole());
+        int allowedBooks = getAllowedBooks(user.getRoles().stream()
+                .map(role -> UserRole.valueOf(String.valueOf(role.getName())))
+                .findFirst()
+                .orElseThrow(()-> new RoleNotFoundException("No role found")));
         long currentBorrowing = borrowRepository.findByUser(user).stream()
                 .filter(b->b.getReturnDate()==null).count();
 
@@ -53,7 +57,12 @@ public class BorrowServiceImpl implements BorrowService{
         borrow.setUser(user);
         borrow.setBook(book);
         borrow.setBorrowDate(LocalDateTime.now());
-        borrow.setDueDate(LocalDateTime.now().plusDays(getLoanPeriod(user.getRole())));
+        borrow.setDueDate(LocalDateTime.now().plusDays(
+                user.getRoles().stream()
+                        .map(role -> getLoanPeriod(role.getName())) // Assuming `Role` has a `name` field corresponding to `UserRole`
+                        .max(Integer::compareTo) // Use the maximum loan period
+                        .orElseThrow(() -> new IllegalArgumentException("No roles found for user"))
+        ));
 
         //Update Book Availability
         book.setAvailable(false);
