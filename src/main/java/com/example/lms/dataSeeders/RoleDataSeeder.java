@@ -3,8 +3,10 @@ package com.example.lms.dataSeeders;
 import com.example.lms.entity.Role;
 import com.example.lms.enums.UserRole;
 import com.example.lms.repository.RoleRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -16,6 +18,8 @@ public class RoleDataSeeder {
     @Autowired
     private RoleRepository roleRepository;
 
+    @EventListener
+    @Transactional
     public void LoadRoles(ContextRefreshedEvent event) {
         List<UserRole> roles = Arrays.stream(UserRole.values()).toList();
         for (UserRole eRole : roles) {

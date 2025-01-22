@@ -2,7 +2,6 @@ package com.example.lms.dto;
 //Setting up a role factory to create role instances.
 
 
-import com.example.lms.enums.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -32,16 +31,6 @@ public class SignUpRequestDto {
     @Size(max = 20, message = "Password can have have atmost 20 characters!")
     private String password;
 
-    private UserRole role;
-
     private Set<String> roles;
-
-    public SignUpRequestDto(String userName, String email, String password) {
-        this.userName = userName;
-        this.email = email;
-        this.password = password;
-        this.role = null;
-        this.roles = null;
-    }
 
 }

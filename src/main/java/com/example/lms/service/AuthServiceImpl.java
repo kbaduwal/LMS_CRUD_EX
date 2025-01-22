@@ -57,6 +57,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = createUser(signUpRequestDto);
+        System.out.println("Saving User: " + user);
         userService.save(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -124,6 +125,7 @@ public class AuthServiceImpl implements AuthService {
 
         return roles;
     }
+
 
 
 }

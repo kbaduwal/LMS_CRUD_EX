@@ -15,11 +15,11 @@ public class RoleFactory {
 
     public Role getInstance(String role) throws RoleNotFoundException {
         switch (role){
-            case "librarian" -> {
-                return roleRepository.findByName(UserRole.LIBRARIAN);
-            }
             case "student" -> {
                 return roleRepository.findByName(UserRole.STUDENT);
+            }
+            case "librarian" -> {
+                return roleRepository.findByName(UserRole.LIBRARIAN);
             }
             case "teacher" -> {
                 return roleRepository.findByName(UserRole.TEACHER);

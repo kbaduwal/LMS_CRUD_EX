@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +22,6 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private UserRole name;
-
 
     public Role(UserRole name) {
         this.name = name;
