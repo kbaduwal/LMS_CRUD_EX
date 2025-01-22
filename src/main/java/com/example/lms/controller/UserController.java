@@ -1,6 +1,7 @@
 package com.example.lms.controller;
 
 import com.example.lms.dto.ApiResponseDto;
+import com.example.lms.dto.SignInRequestDto;
 import com.example.lms.dto.SignUpRequestDto;
 import com.example.lms.dto.UserDTO;
 import com.example.lms.exception.ResourceNotFoundException;
@@ -33,6 +34,12 @@ public class UserController {
         return authService.signUpUser(signUpRequestDto);
 
     }
+
+    public ResponseEntity<ApiResponseDto<?>> signInUser(@RequestBody @Valid
+                                                        SignInRequestDto signInRequestDto){
+        return authService.signInUser(signInRequestDto);
+    }
+
 
     @GetMapping("/all")
     public ResponseEntity<List<UserDTO>> getAllUsers() throws RoleNotFoundException {
