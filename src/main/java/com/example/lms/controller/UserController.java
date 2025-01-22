@@ -35,6 +35,7 @@ public class UserController {
 
     }
 
+    @PostMapping("/signin")
     public ResponseEntity<ApiResponseDto<?>> signInUser(@RequestBody @Valid
                                                         SignInRequestDto signInRequestDto){
         return authService.signInUser(signInRequestDto);

@@ -104,7 +104,7 @@ public class AuthServiceImpl implements AuthService {
         return User.builder()
                 .email(signUpRequestDto.getEmail())
                 .username(signUpRequestDto.getUserName())
-                .password(signUpRequestDto.getPassword())
+                .password(passwordEncoder.encode(signUpRequestDto.getPassword()))
                 .enabled(true)
                 .roles(determineRoles(signUpRequestDto.getRoles()))
                 .build();
