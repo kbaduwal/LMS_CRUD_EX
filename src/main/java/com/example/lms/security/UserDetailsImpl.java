@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -53,6 +54,7 @@ public class UserDetailsImpl implements UserDetails{
         return true;
     }
 
+    @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
@@ -67,7 +69,7 @@ public class UserDetailsImpl implements UserDetails{
         }
 
         UserDetailsImpl user = (UserDetailsImpl) o;
-        return id.equals(user.getId());
+        return Objects.equals(id, user.id);
     }
 
 
