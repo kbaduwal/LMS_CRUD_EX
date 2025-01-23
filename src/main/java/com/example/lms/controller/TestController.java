@@ -16,7 +16,7 @@ public class TestController {
 
     //Only user with "STUDENT" role can access this end point
     @GetMapping("/student")
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAuthority('STUDENT')")
     public ResponseEntity<ApiResponseDto<?>> StudentDashboard() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -29,7 +29,7 @@ public class TestController {
 
     //Only user with "TEACHER" role can access this end point
     @GetMapping("/teacher")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAuthority('TEACHER')")
     public ResponseEntity<ApiResponseDto<?>> TeacherDashboard() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -43,7 +43,7 @@ public class TestController {
 
     //Only with user "LIBRARIAN" role can access this end point
     @GetMapping("/librarian")
-    @PreAuthorize("hasRole('librarian')")
+    @PreAuthorize("hasAuthority('librarian')")
     public ResponseEntity<ApiResponseDto<?>> LibrarianDashboard() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -56,7 +56,7 @@ public class TestController {
 
     //User with "TEACHER" or "LIBRARIAN" roles can access this end pont
     @GetMapping("/teacherOrLibrarian")
-    @PreAuthorize("hasRole('TEACHER') or hasRole('LIBRARIAN')")
+    @PreAuthorize("hasAuthority('TEACHER') or hasRole('LIBRARIAN')")
     public ResponseEntity<ApiResponseDto<?>> TeacherOrLibrarianContent() {
         return ResponseEntity
                 .status(HttpStatus.OK)
