@@ -43,7 +43,7 @@ public class TestController {
 
     //Only with user "LIBRARIAN" role can access this end point
     @GetMapping("/librarian")
-    @PreAuthorize("hasAuthority('librarian')")
+    @PreAuthorize("hasAuthority('LIBRARIAN')")
     public ResponseEntity<ApiResponseDto<?>> LibrarianDashboard() {
         return ResponseEntity
                 .status(HttpStatus.OK)
