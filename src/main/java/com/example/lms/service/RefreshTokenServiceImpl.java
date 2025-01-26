@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Service
-public class RefreshTokenServiceImpl {
+public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private long refreshTokenExpireMs = 5*60*60*1000;
 
@@ -20,7 +20,8 @@ public class RefreshTokenServiceImpl {
     @Autowired
     private UserRepository userRepository;
 
-    private RefreshToken createRefreshToken(String userName) {
+    @Override
+    public RefreshToken createRefreshToken(String userName) {
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .refreshToken(UUID.randomUUID().toString())
@@ -28,10 +29,13 @@ public class RefreshTokenServiceImpl {
                 .user(userRepository.findByEmail(userName).get())
                 .build();
 
+        refreshTokenRepository.save(refreshToken);
+
         return refreshToken;
     }
 
-    private RefreshToken verifyRefreshToken(Long id) {
+    @Override
+    public RefreshToken verifyRefreshToken(Long id) {
         RefreshToken refreshTokenOb = refreshTokenRepository.findById(id).orElseThrow(
                 () -> new RuntimeException( "Token not found."));
 

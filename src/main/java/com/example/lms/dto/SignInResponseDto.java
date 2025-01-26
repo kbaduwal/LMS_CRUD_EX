@@ -9,6 +9,7 @@ import java.util.List;
 @Builder
 public class SignInResponseDto {
     private String token;
+    private String refreshToken;
     private String type = "Bearer";
     private Long id;
     private String username;

@@ -4,6 +4,7 @@ import com.example.lms.dto.ApiResponseDto;
 import com.example.lms.dto.SignInRequestDto;
 import com.example.lms.dto.SignInResponseDto;
 import com.example.lms.dto.SignUpRequestDto;
+import com.example.lms.entity.RefreshToken;
 import com.example.lms.entity.Role;
 import com.example.lms.entity.User;
 import com.example.lms.exception.RoleNotFoundException;
@@ -79,7 +80,7 @@ public class AuthServiceImpl implements AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
-        String refreshToken = refreshTokenService.createRefreshToken();
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(signInRequestDto.getEmail());
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles= userDetails.getAuthorities().stream()
@@ -91,6 +92,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(userDetails.getEmail())
                 .id(userDetails.getId())
                 .token(jwt)
+                .refreshToken(refreshToken.getRefreshToken())
                 .type("Bearer")
                 .roles(roles)
                 .build();
