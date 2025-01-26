@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/test")
 public class TestController {
@@ -44,6 +44,7 @@ public class TestController {
     //Only with user "LIBRARIAN" role can access this end point
     @GetMapping("/librarian")
     @PreAuthorize("hasAuthority('LIBRARIAN')")
+//    @PreAuthorize("hasRole('LIBRARIAN')")
     public ResponseEntity<ApiResponseDto<?>> LibrarianDashboard() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -56,7 +57,7 @@ public class TestController {
 
     //User with "TEACHER" or "LIBRARIAN" roles can access this end pont
     @GetMapping("/teacherOrLibrarian")
-    @PreAuthorize("hasAuthority('TEACHER') or hasRole('LIBRARIAN')")
+    @PreAuthorize("hasAuthority('TEACHER') or hasAuthority('LIBRARIAN')")
     public ResponseEntity<ApiResponseDto<?>> TeacherOrLibrarianContent() {
         return ResponseEntity
                 .status(HttpStatus.OK)
