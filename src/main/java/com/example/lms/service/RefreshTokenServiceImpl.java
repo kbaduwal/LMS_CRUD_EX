@@ -1,6 +1,7 @@
 package com.example.lms.service;
 
 import com.example.lms.entity.RefreshToken;
+import com.example.lms.entity.User;
 import com.example.lms.repository.RefreshTokenRepository;
 import com.example.lms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +23,20 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public RefreshToken createRefreshToken(String userName) {
+        User user = userRepository.findByEmail(userName).get();
+        RefreshToken refreshToken = user.getRefreshToken();
 
-        RefreshToken refreshToken = RefreshToken.builder()
-                .refreshToken(UUID.randomUUID().toString())
-                .expiry(Instant.now().plusMillis(refreshTokenExpireMs))
-                .user(userRepository.findByEmail(userName).get())
-                .build();
+        if(refreshToken==null) {
+            refreshToken = RefreshToken.builder()
+                    .refreshToken(UUID.randomUUID().toString())
+                    .expiry(Instant.now().plusMillis(refreshTokenExpireMs))
+                    .user(userRepository.findByEmail(userName).get())
+                    .build();
+        }else {
+            refreshToken.setExpiry(Instant.now().plusMillis(refreshTokenExpireMs));
+        }
+
+        user.setRefreshToken(refreshToken);
 
         refreshTokenRepository.save(refreshToken);
 
@@ -40,6 +49,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 () -> new RuntimeException( "Token not found."));
 
         if(refreshTokenOb.getExpiry().compareTo(Instant.now())<0) {
+            refreshTokenRepository.deleteById(id);
             throw new RuntimeException("Refresh token expired.");
 
         }
