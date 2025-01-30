@@ -1,9 +1,6 @@
 package com.example.lms.service;
 
-import com.example.lms.dto.ApiResponseDto;
-import com.example.lms.dto.SignInRequestDto;
-import com.example.lms.dto.SignInResponseDto;
-import com.example.lms.dto.SignUpRequestDto;
+import com.example.lms.dto.*;
 import com.example.lms.entity.RefreshToken;
 import com.example.lms.entity.Role;
 import com.example.lms.entity.User;
@@ -12,6 +9,10 @@ import com.example.lms.exception.UserAlreadyExistsException;
 import com.example.lms.factories.RoleFactory;
 import com.example.lms.security.UserDetailsImpl;
 import com.example.lms.security.jwt.JwtUtils;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,10 +55,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<ApiResponseDto<?>> signUpUser(SignUpRequestDto signUpRequestDto)
             throws UserAlreadyExistsException, RoleNotFoundException {
-        if(userService.existsByEmail(signUpRequestDto.getEmail())) {
+        if (userService.existsByEmail(signUpRequestDto.getEmail())) {
             throw new UserAlreadyExistsException("Registration Failed: Provided email already exists. Try sign in or provide another email.");
         }
-        if (userService.existsByUsername(signUpRequestDto.getUserName())){
+        if (userService.existsByUsername(signUpRequestDto.getUserName())) {
             throw new UserAlreadyExistsException("Registration Failed: Provided username already exists. Try sign in or provide another username.");
         }
 
@@ -83,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(signInRequestDto.getEmail());
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles= userDetails.getAuthorities().stream()
+        List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
@@ -107,6 +109,55 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
+    @Override
+    public ResponseEntity<ApiResponseDto<?>> refreshAccessToken(String refreshToken) {
+
+        try {
+            RefreshToken validRefreshToken = refreshTokenService.verifyRefreshToken(refreshToken);
+
+            if (validRefreshToken == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                        ApiResponseDto.builder()
+                                .isSuccess(false)
+                                .message("Invalid or expired refresh token. Please log in again.")
+                                .build()
+                );
+            }
+            User user = validRefreshToken.getUser();
+
+
+            String newAccessToken = Jwts.builder()
+                    .setSubject(user.getEmail())
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + jwtUtils.getJwtExpirationMs()))
+                    .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtUtils.getJwtSecret())), SignatureAlgorithm.HS256)
+                    .compact();
+
+            TokenResponseDto tokenResponse = new TokenResponseDto(newAccessToken, refreshToken, "Bearer");
+
+
+            return ResponseEntity.ok(
+                    ApiResponseDto.builder()
+                            .isSuccess(true)
+                            .message("Access token refreshed successfully.")
+                            .response(newAccessToken)
+                            .build()
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    ApiResponseDto.builder()
+                            .isSuccess(false)
+                            .message("An error occurred while refreshing the token.")
+                            .build()
+            );
+
+        }
+
+
+    }
+
+
     private User createUser(SignUpRequestDto signUpRequestDto) throws RoleNotFoundException {
         return User.builder()
                 .email(signUpRequestDto.getEmail())
@@ -122,8 +173,7 @@ public class AuthServiceImpl implements AuthService {
 
         if (strRoles == null) {
             roles.add(roleFactory.getInstance("student"));
-        }
-        else {
+        } else {
             for (String role : strRoles) {
                 roles.add(roleFactory.getInstance(role));
             }
@@ -132,6 +182,7 @@ public class AuthServiceImpl implements AuthService {
         return roles;
     }
 
-
-
 }
+
+
+

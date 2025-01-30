@@ -27,6 +27,14 @@ public class JwtUtils {
     @Value("${app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    public String getJwtSecret() {
+        return jwtSecret;
+    }
+
+    public int getJwtExpirationMs() {
+        return jwtExpirationMs;
+    }
+
     public String generateJwtToken(Authentication authentication) {
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
@@ -49,6 +57,16 @@ public class JwtUtils {
     }
 
     public boolean validateJwtToken(String authToken) {
+        if (authToken == null || authToken.trim().isEmpty()) {
+            logger.error("JWT token is null or empty.");
+            return false;
+        }
+
+        if (!authToken.contains(".")) { // A valid JWT should have at least two dots ("header.payload.signature")
+            logger.warn("Received non-JWT token, possibly a refresh token.");
+            return false;
+        }
+
         try {
             Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
             return true;
@@ -64,6 +82,4 @@ public class JwtUtils {
 
         return false;
     }
-
-
 }

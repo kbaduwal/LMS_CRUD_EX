@@ -5,6 +5,7 @@ import com.example.lms.entity.User;
 import com.example.lms.repository.RefreshTokenRepository;
 import com.example.lms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -13,7 +14,8 @@ import java.util.UUID;
 @Service
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
-    private long refreshTokenExpireMs = 5*60*60*1000;
+    @Value("${app.refreshTokenExpirationMs}")
+    private long refreshTokenExpireMs;
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
@@ -44,14 +46,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    public RefreshToken verifyRefreshToken(Long id) {
-        RefreshToken refreshTokenOb = refreshTokenRepository.findById(id).orElseThrow(
+    public RefreshToken verifyRefreshToken(String refreshToken) {
+        RefreshToken refreshTokenOb = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(
                 () -> new RuntimeException( "Token not found."));
 
         if(refreshTokenOb.getExpiry().compareTo(Instant.now())<0) {
-            refreshTokenRepository.deleteById(id);
+            refreshTokenRepository.delete(refreshTokenOb);
             throw new RuntimeException("Refresh token expired.");
-
         }
 
         return refreshTokenOb;
