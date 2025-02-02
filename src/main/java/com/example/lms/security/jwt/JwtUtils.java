@@ -21,6 +21,9 @@ public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
+    @Value("${app.refreshTokenExpirationMs}")
+    private long refreshTokenExpireMs;
+
     @Value("${app.jwtSecret}")
     private String jwtSecret;
 
@@ -31,9 +34,10 @@ public class JwtUtils {
         return jwtSecret;
     }
 
-    public int getJwtExpirationMs() {
-        return jwtExpirationMs;
+    public long getRefreshTokenExpireMs() {
+        return refreshTokenExpireMs;
     }
+
 
     public String generateJwtToken(Authentication authentication) {
 

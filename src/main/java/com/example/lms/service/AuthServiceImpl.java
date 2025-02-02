@@ -129,7 +129,7 @@ public class AuthServiceImpl implements AuthService {
             String newAccessToken = Jwts.builder()
                     .setSubject(user.getEmail())
                     .setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + jwtUtils.getJwtExpirationMs()))
+                    .setExpiration(new Date(System.currentTimeMillis() + jwtUtils.getRefreshTokenExpireMs()))
                     .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtUtils.getJwtSecret())), SignatureAlgorithm.HS256)
                     .compact();
 

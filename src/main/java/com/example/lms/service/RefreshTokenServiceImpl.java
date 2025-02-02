@@ -4,6 +4,7 @@ import com.example.lms.entity.RefreshToken;
 import com.example.lms.entity.User;
 import com.example.lms.repository.RefreshTokenRepository;
 import com.example.lms.repository.UserRepository;
+import com.example.lms.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,8 +15,8 @@ import java.util.UUID;
 @Service
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
-    @Value("${app.refreshTokenExpirationMs}")
-    private long refreshTokenExpireMs;
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
@@ -31,11 +32,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         if(refreshToken==null) {
             refreshToken = RefreshToken.builder()
                     .refreshToken(UUID.randomUUID().toString())
-                    .expiry(Instant.now().plusMillis(refreshTokenExpireMs))
+                    .expiry(Instant.now().plusMillis(jwtUtils.getRefreshTokenExpireMs()))
                     .user(userRepository.findByEmail(userName).get())
                     .build();
         }else {
-            refreshToken.setExpiry(Instant.now().plusMillis(refreshTokenExpireMs));
+            refreshToken.setExpiry(Instant.now().plusMillis(jwtUtils.getRefreshTokenExpireMs()));
         }
 
         user.setRefreshToken(refreshToken);
